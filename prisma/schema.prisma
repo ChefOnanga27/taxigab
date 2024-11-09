@@ -30,7 +30,7 @@ model Client {
   mis_a_jour_le  DateTime     @updatedAt
 }
 
-model Admin {
+model admin {
   id             Int          @id @default(autoincrement())
   email          String       @unique
   mot_de_passe   String
@@ -40,7 +40,7 @@ model Admin {
   mis_a_jour_le  DateTime     @updatedAt
 }
 
-model Chauffeur {
+model chauffeur {
   id            Int           @id @default(autoincrement())
   numero_permis String        @unique
   note          Float?
@@ -65,7 +65,7 @@ model Taxi {
   annee          Int
   couleur        String
   statut         StatutTaxi @default(DISPONIBLE)
-  chauffeur      Chauffeur?    @relation(fields: [chauffeur_id], references: [id])
+  chauffeur      chauffeur?    @relation(fields: [chauffeur_id], references: [id])
   chauffeur_id   Int?
   courses        Course[]
   cree_le        DateTime      @default(now())
@@ -93,7 +93,7 @@ model Course {
   note              Float?
   client            Client        @relation(fields: [client_id], references: [id])
   client_id         Int
-  chauffeur         Chauffeur?   @relation(fields: [chauffeur_id], references: [id])
+  chauffeur         chauffeur?   @relation(fields: [chauffeur_id], references: [id])
   chauffeur_id      Int?
   taxi              Taxi?        @relation(fields: [taxi_id], references: [id])
   taxi_id           Int?

@@ -22,7 +22,7 @@ import { PrismaClient } from '@prisma/client';
   connect();
  app.use('/',router)
 
-  export default prisma
+  
   
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

@@ -1,4 +1,6 @@
 import express from 'express';
+import { envoiyerLocalisation, recupererLocalisation } from './controllers/locationController.js';
+import { verifyTokenChauffeur } from './middlewares/authMiddleware.js';
 import router from './routes/adminRoute.js'
 //import authRoutes from './routes/authRoutes.js';
 //import userRoutes from './routes/userRoutes.js';
@@ -6,6 +8,9 @@ import router from './routes/adminRoute.js'
 //import rideRoutes from './routes/rideRoutes.js';
 //import paymentRoutes from './routes/paymentRoutes.js';
 //import errorHandler from './middleware/error.js';
+import chauffeurRoutes from './routes/chauffeurRoute.js'; // Assurez-vous que le chemin est correct
+app.use('/chauffeur', chauffeurRoutes);
+
 
 
 // Routes
@@ -14,6 +19,8 @@ import router from './routes/adminRoute.js'
 a//pp.use('/api/vehicles', vehicleRoutes);
 //app.use('/api/rides', rideRoutes);
 app.use('/api/router', router);
+
+
 
 // Error Handling Middleware
 app.use(errorHandler);

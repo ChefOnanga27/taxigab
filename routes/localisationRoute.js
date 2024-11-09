@@ -1,6 +1,6 @@
 import express from 'express';
 import { envoiyerLocalisation, recupererLocalisation } from './controllers/locationController.js';
-import { verifyTokenChauffeur } from './middlewares/authMiddleware.js'; // Assuming you have a middleware to verify driver tokens
+import { verifyTokenChauffeur } from './middlewares/authMiddleware.js'; 
 
 const router = express.Router();
 
