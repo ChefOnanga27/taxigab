@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 // Connexion d'un admin
 export const adminConnexion = async (req, res) => {
-    const { email, motDePasse } = req.body;
+    const { email, mot_de_passe } = req.body;
 
     if (!email || !motDePasse) {
         return res.status(400).json({ message: "Email et mot de passe requis." });
