@@ -23,8 +23,10 @@ import { Prisma, PrismaClient } from '@prisma/client';
   
   connect();
 
-  export default prisma
+  
   
   app.listen(port, () => {
     console.log(`le serveur demarre bien ${port}`)
   })
+
+  export default prisma
