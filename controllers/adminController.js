@@ -1,11 +1,12 @@
 // controllers/adminController.js
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+//import bcrypt from 'bcrypt';
+//import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+const SECRET_KEY = 'votre_secret_key';  // À remplacer par une clé secrète sécurisée
 
-// Connexion d'un admin
+// Connexion d'un administrateur
 export const adminConnexion = async (req, res) => {
     const { email, motDePasse } = req.body;
 
@@ -18,14 +19,14 @@ export const adminConnexion = async (req, res) => {
         if (!admin || !(await bcrypt.compare(motDePasse, admin.motDePasse))) {
             return res.status(401).json({ message: "Les identifiants de l'admin sont invalides." });
         }
-        const token = jwt.sign({ id: admin.id }, 'secret', { expiresIn: '1h' });
+        const token = jwt.sign({ id: admin.id }, SECRET_KEY, { expiresIn: '1h' });
         res.json({ token });
     } catch (error) {
         res.status(500).json({ message: "Erreur lors de la connexion.", error: error.message });
     }
 };
 
-// Gestion des chauffeurs
+// Récupération de la liste des chauffeurs
 export const consulterListeChauffeurs = async (req, res) => {
     try {
         const chauffeurs = await prisma.chauffeur.findMany();
@@ -35,7 +36,7 @@ export const consulterListeChauffeurs = async (req, res) => {
     }
 };
 
-// Récupération des taxis
+// Récupération de la liste des taxis
 export const consulterListeTaxis = async (req, res) => {
     try {
         const taxis = await prisma.taxi.findMany();
@@ -45,7 +46,7 @@ export const consulterListeTaxis = async (req, res) => {
     }
 };
 
-// Détails d'un taxi
+// Récupération des détails d'un taxi par ID
 export const detailTaxiById = async (req, res) => {
     const { id } = req.params;
 
@@ -60,7 +61,7 @@ export const detailTaxiById = async (req, res) => {
     }
 };
 
-// Ajout d'un taxi
+// Ajout d'un nouveau taxi
 export const ajouterTaxi = async (req, res) => {
     const { plaque, modele } = req.body;
 
@@ -93,7 +94,7 @@ export const desactiverTaxi = async (req, res) => {
     }
 };
 
-// Mise à jour d'un taxi
+// Mise à jour des informations d'un taxi
 export const mettreAjourTaxi = async (req, res) => {
     const { id } = req.params;
     const { plaque, modele, statut } = req.body;
