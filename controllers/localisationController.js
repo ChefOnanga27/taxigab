@@ -1,4 +1,3 @@
-// controllers/locationController.js
 import PrismaClient from '@prisma/client'
 const { PrismaClient } = require('@prisma/client');
 
@@ -38,6 +37,21 @@ export const recupererLocalisation = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Erreur lors de la récupération des localisations.", error });
     }
+};
+
+
+// Fonction pour calculer la distance entre deux points géographiques (en kilomètres)
+export const calculerDistance = (lat1, long1, lat2, long2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 6371; // Rayon de la Terre en km
+    const dLat = toRad(lat2 - lat1);
+    const dLong = toRad(long2 - long1);
+    const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLong / 2) * Math.sin(dLong / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance en kilomètres
 };
 
 

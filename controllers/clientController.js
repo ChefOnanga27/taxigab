@@ -1,4 +1,3 @@
-// controllers/clientController.js
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -172,11 +171,7 @@ export const evaluerCourse = async (req, res) => {
 
     try {
         const evaluation = await prisma.evaluation.create({
-            data: {
-                courseId: Number(id),
-                note,
-                commentaire,
-            },
+            data: {courseId: Number(id), note, commentaire,},
         });
         res.status(201).json(evaluation);
     } catch (error) {
