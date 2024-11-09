@@ -1,13 +1,15 @@
-// controllers/locationController.js
-import PrismaClient from '@prisma/client'
-const { PrismaClient } = require('@prisma/client');
-
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // Envoi de la localisation
-export const envoiyerLocalisation = async (req, res) => {
-    const { latitude, longitude } = req.body;
+export const envoyerLocalisation = async (req, res) => {
+    const { latitude, longitude, courseDepart, courseArrivee } = req.body;
     const courseId = req.params.id; // ID de la course
+
+    // Vérification de la présence des données nécessaires
+    if (!latitude || !longitude || !courseDepart || ! courseArrivee) {
+        return res.status(400).json({ message: "La latitude, la longitude, le lieu de départ et le lieu d'arrivée sont requis." });
+    }
 
     try {
         // Créer une nouvelle entrée de localisation pour la course
@@ -16,11 +18,13 @@ export const envoiyerLocalisation = async (req, res) => {
                 courseId: Number(courseId),
                 latitude,
                 longitude,
+                courseDepart,
+                 courseArrivee,
             },
         });
         res.json({ message: "Localisation reçue.", localisation });
     } catch (error) {
-        res.status(500).json({ message: "Erreur lors de l'envoi de la localisation.", error });
+        res.status(500).json({ message: "Erreur lors de l'envoi de la localisation.", error: error.message });
     }
 };
 
@@ -32,44 +36,17 @@ export const recupererLocalisation = async (req, res) => {
         // Récupérer toutes les localisations pour une course donnée
         const localisations = await prisma.localisation.findMany({
             where: { courseId: Number(courseId) },
-            orderBy: { timestamp: 'desc' }, // Ordre décroissant par timestamp
+            orderBy: { timestamp: 'desc' }, // Ordre décroissant par timestamp pour obtenir la localisation la plus récente
         });
+
+        // Si aucune localisation n'est trouvée
+        if (localisations.length === 0) {
+            return res.status(404).json({ message: "Aucune localisation trouvée pour cette course." });
+        }
+
+        // Retourner les localisations avec les lieux de départ et d'arrivée
         res.json(localisations);
     } catch (error) {
-        res.status(500).json({ message: "Erreur lors de la récupération des localisations.", error });
+        res.status(500).json({ message: "Erreur lors de la récupération des localisations.", error: error.message });
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // controllers/locationController.js
-// const { PrismaClient } = require('@prisma/client');
-// const prisma = new PrismaClient();
-
-// // Envoi de la localisation d'un chauffeur
-// exports.localisation = async (req, res) => {
-//     const { latitude, longitude } = req.body;
-//     const chauffeurId = req.user.id;
-
-//     try {
-//         // Logique pour mettre à jour la localisation dans une table ou simplement enregistrer
-//         // Pour cet exemple, nous allons juste renvoyer les données reçues
-//         res.json({ message: "Localisation reçue.", latitude, longitude });
-//     } catch (error) {
-//         res.status(500).json({ message: "Erreur lors de l'envoi de la localisation.", error });
-//     }
-// };

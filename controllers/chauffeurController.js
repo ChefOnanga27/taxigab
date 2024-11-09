@@ -1,6 +1,4 @@
-// controllers/driverController.js
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
@@ -11,7 +9,7 @@ export const chauffeurConnexion = async (req, res) => {
 
     try {
         const chauffeur = await prisma.chauffeur.findUnique({ where: { email } });
-        if (!chauffeur || !(await bcrypt.compare(motDePasse, chauffeur.motDePasse))) {
+        if (!chauffeur || chauffeur.motDePasse !== motDePasse) {
             return res.status(401).json({ message: "Identifiants invalides." });
         }
         const token = jwt.sign({ id: chauffeur.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -21,7 +19,7 @@ export const chauffeurConnexion = async (req, res) => {
     }
 };
 
-// Consulte le profil
+// Consulte le profil du chauffeur
 export const consulterProfilChauffeur = async (req, res) => {
     const chauffeurId = req.user.id;
 
@@ -36,12 +34,14 @@ export const consulterProfilChauffeur = async (req, res) => {
     }
 };
 
-// Liste des évaluations
+// Liste des évaluations du chauffeur
 export const consulterEvaluations = async (req, res) => {
+    const chauffeurId = req.user.id;
+
     try {
-        const evaluations = await prisma.course.findMany({
-            where: { chauffeurId: req.user.id },
-            select: { id: true, statut: true, client: { select: { nom: true, prenom: true } } },
+        const evaluations = await prisma.evaluation.findMany({
+            where: { chauffeurId },
+            orderBy: { createdAt: 'desc' },
         });
         res.json(evaluations);
     } catch (error) {
@@ -51,9 +51,11 @@ export const consulterEvaluations = async (req, res) => {
 
 // Liste des demandes de course
 export const consulterListeCourse = async (req, res) => {
+    const chauffeurId = req.user.id;
+
     try {
         const demandes = await prisma.course.findMany({
-            where: { statut: "en attente" },
+            where: { chauffeurId, statut: "en attente" },
             include: { client: true },
         });
         res.json(demandes);
@@ -65,15 +67,17 @@ export const consulterListeCourse = async (req, res) => {
 // Acceptation d'une course
 export const accepterCourse = async (req, res) => {
     const { id } = req.params;
+    const chauffeurId = req.user.id;
 
     try {
         const course = await prisma.course.findUnique({ where: { id: Number(id) } });
-        if (!course) {
-            return res.status(404).json({ message: "Course non trouvée." });
+        if (!course || course.chauffeurId !== chauffeurId || course.statut !== "en attente") {
+            return res.status(404).json({ message: "Course non trouvée ou déjà acceptée." });
         }
+
         const updatedCourse = await prisma.course.update({
             where: { id: Number(id) },
-            data: { chauffeurId: req.user.id, statut: "acceptée" },
+            data: { statut: "en cours" },
         });
         res.json(updatedCourse);
     } catch (error) {
@@ -81,55 +85,52 @@ export const accepterCourse = async (req, res) => {
     }
 };
 
-// Indisponible pour une course
+// Marquer une course comme indisponible
 export const courseIndisponible = async (req, res) => {
     const { id } = req.params;
+    const chauffeurId = req.user.id;
 
     try {
         const course = await prisma.course.findUnique({ where: { id: Number(id) } });
-        if (!course) {
+        if (!course || course.chauffeurId !== chauffeurId) {
             return res.status(404).json({ message: "Course non trouvée." });
         }
-        await prisma.course.update({
+
+        const updatedCourse = await prisma.course.update({
             where: { id: Number(id) },
             data: { statut: "indisponible" },
         });
-        res.json({ message: "Course marquée comme indisponible." });
+        res.json(updatedCourse);
     } catch (error) {
-        res.status(500).json({ message: "Erreur lors de la mise à jour de la course.", error });
+        res.status(500).json({ message: "Erreur lors de la mise à jour du statut de la course.", error });
     }
 };
 
-// Envoi de localisation
+// Envoi de la position du chauffeur
 export const envoyerPosition = async (req, res) => {
     const { latitude, longitude } = req.body;
-
-    // Validation des coordonnées
-    if (typeof latitude !== 'number' || typeof longitude !== 'number') {
-        return res.status(400).json({ message: "Latitude et longitude doivent être des nombres." });
-    }
+    const chauffeurId = req.user.id;
 
     try {
-        // Enregistrer la localisation dans la base de données
-        const localisation = await prisma.localisation.create({
-            data: {
-                chauffeurId: req.user.id,
-                latitude,
-                longitude,
-            },
+        const updatedChauffeur = await prisma.chauffeur.update({
+            where: { id: chauffeurId },
+            data: { latitude, longitude },
         });
-        res.json({ message: "Localisation reçue.", localisation });
+        res.json(updatedChauffeur);
     } catch (error) {
-        res.status(500).json({ message: "Erreur lors de l'envoi de la localisation.", error });
+        res.status(500).json({ message: "Erreur lors de l'envoi de la position.", error });
     }
 };
 
-// Historique des courses
+// Historique des courses du chauffeur
 export const consulterHistoriqueCourses = async (req, res) => {
+    const chauffeurId = req.user.id;
+
     try {
         const historique = await prisma.course.findMany({
-            where: { chauffeurId: req.user.id },
+            where: { chauffeurId },
             include: { client: true },
+            orderBy: { id: 'desc' },
         });
         res.json(historique);
     } catch (error) {
@@ -137,7 +138,7 @@ export const consulterHistoriqueCourses = async (req, res) => {
     }
 };
 
-// Récupération des notifications pour un chauffeur
+// Récupérer les notifications pour un chauffeur
 export const consulterNotificationsChauffeur = async (req, res) => {
     const chauffeurId = req.user.id;
 

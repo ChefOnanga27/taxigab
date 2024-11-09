@@ -1,13 +1,13 @@
 import express from 'express';
-import { envoiyerLocalisation, recupererLocalisation } from './controllers/locationController.js';
-import { verifyTokenChauffeur } from './middlewares/authMiddleware.js'; 
+import { envoyerLocalisation, recupererLocalisation } from '../controllers/localisationController.js';
+import { verifyToken } from '../middleware/auth.js'; // Assuming you have a middleware to verify driver tokens
 
-const router = express.Router();
+const localisationrouter = express.Router();
 
 // Envoi de la localisation pour une course
-router.post('/localisation/:id', verifyTokenChauffeur, envoiyerLocalisation);
+localisationrouter.post('/localisation/:id', verifyToken,envoyerLocalisation);
 
 // Récupération de la localisation en temps réel d'une course
-router.get('/localisation/:id', recupererLocalisation);
+localisationrouter.get('/localisation/:id', recupererLocalisation);
 
-export default router;
+export default localisationrouter;

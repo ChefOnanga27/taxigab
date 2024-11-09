@@ -10,37 +10,37 @@ import {
     envoyerPosition, 
     consulterHistoriqueCourses, 
     consulterNotificationsChauffeur 
-} from '../controllers/chauffeurController.js'; 
-import { verifyToken } from '../middlewares/auth.js'; 
+} from '../controllers/chauffeurController.js';
+import { verifyToken } from '../middleware/auth.js'; // Assuming you have an authentication middleware
+import { login } from '../controllers/authController.js';
 
-const router = express.Router();
+const chauffeurrouter = express.Router();
 
 // Connexion d'un chauffeur
-router.post('/connexion', asyncHandler(chauffeurConnexion));
+chauffeurrouter.post('/connexion',login, chauffeurConnexion);
 
 // Consulte le profil
-router.get('/profil', verifyToken, asyncHandler(consulterProfilChauffeur));
+chauffeurrouter.get('/profil', verifyToken, consulterProfilChauffeur);
 
 // Liste des évaluations
-router.get('/evaluations', verifyToken, asyncHandler(consulterEvaluations));
+chauffeurrouter.get('/evaluations', verifyToken, consulterEvaluations);
 
 // Liste des demandes de course
-router.get('/demandes', verifyToken, asyncHandler(consulterListeCourse));
+chauffeurrouter.get('/demandes', verifyToken, consulterListeCourse);
 
 // Acceptation d'une course
-router.put('/course/:id/accepter', verifyToken, asyncHandler(accepterCourse));
+chauffeurrouter.put('/course/:id/accepter', verifyToken, accepterCourse);
 
 // Indisponible pour une course
-router.put('/course/:id/indisponible', verifyToken, asyncHandler(courseIndisponible));
+chauffeurrouter.put('/course/:id/indisponible', verifyToken, courseIndisponible);
 
 // Envoi de localisation
-router.post('/position', verifyToken, asyncHandler(envoyerPosition));
+chauffeurrouter.post('/position', verifyToken, envoyerPosition);
 
 // Historique des courses
-router.get('/historique-courses', verifyToken, asyncHandler(consulterHistoriqueCourses));
+chauffeurrouter.get('/historique-courses', verifyToken, consulterHistoriqueCourses);
 
 // Récupération des notifications pour un chauffeur
-router.get('/notifications', verifyToken, asyncHandler(consulterNotificationsChauffeur));
+chauffeurrouter.get('/notifications', verifyToken, consulterNotificationsChauffeur);
 
-export default router;
-
+export default chauffeurrouter;

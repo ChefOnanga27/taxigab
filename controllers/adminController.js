@@ -26,6 +26,22 @@ export const adminConnexion = async (req, res) => {
     }
 };
 
+// Récupération d'un admin par ID
+export const recupererAdminById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const admin = await prisma.admin.findUnique({ where: { id: Number(id) } });
+        if (!admin) {
+            return res.status(404).json({ message: "Admin non trouvé." });
+        }
+        res.json(admin);
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la récupération de l'admin.", error: error.message });
+    }
+};
+
+
 // Récupération de la liste des chauffeurs
 export const consulterListeChauffeurs = async (req, res) => {
     try {

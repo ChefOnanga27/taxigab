@@ -1,4 +1,5 @@
-import prisma from '../prisma/client.js'; // Assurez-vous que prisma est correctement configuré
+import prisma from '../prisma/client.js'; 
+const prisma = new PrismaClient();
 
 // Créer un nouveau chauffeur
 export const createChauffeur = async (chauffeurData) => {
